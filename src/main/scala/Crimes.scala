@@ -22,7 +22,7 @@ object Crimes extends App {
 
 
   //Renommage des colonnes (non obligatoire : ici on s'est simplement aperçu après coup qu'il ne fallait pas oublier
-  // l'option header lors de la lecture du csv)
+  // l'option header true lors de la lecture du csv)
   val crimesWithColumnsNamesDF = crimesDF.toDF(
 "ID", "Case_Number", "Date", "Block", "IUCR", "Primary_Type", "Description", "Location_Description",
     "Arrest", "Domestic", "Beat", "District", "Ward", "Community_Area", "FBI_Code", "X_Coordinate", "Y_Coordinate",
@@ -40,12 +40,12 @@ object Crimes extends App {
   val crimesWithArrestsDF = arrestDF
     .groupBy("Primary Type")
     .agg(
-      count("Primary Type").as("Number_of_crimes")
+      count("Primary Type").as("Number_of_arrests")
     )
-    .orderBy(col("Number_of_crimes").desc_nulls_last)
+    .orderBy(col("Number_of_arrests").desc_nulls_last)
 
-  //crimesWithArrestsDF.show()
-  /* notre 1er résultat nous montre que les crimes liés à la drogue arrivent très nettement en 1ère position sur la
+  crimesWithArrestsDF.show()
+  /* notre 1er résultat nous montre que les arrestations pour les crimes liés à la drogue arrivent très nettement en 1ère position sur la
   ville de Chicago
    */
 
@@ -70,7 +70,7 @@ object Crimes extends App {
   On remarque également que peu de crimes mènent à une arrestation
    */
 
-  // 3. Identifier le district le moins performant
+  // 3. Identifier le district dans lequel la police est le plus performant
 
   //Compter le nombre de districts
   crimesDF.select(countDistinct(col("District")))
@@ -100,9 +100,7 @@ object Crimes extends App {
     .orderBy(col("Arrest_Rate").desc_nulls_last)
 
   //arrestRateByDistrictDF.show(24)
-  /* cette nouvelle colonne met en avant que c'est dans les districts les moins sûrs (=ceux dans lesquels il y a
-  le plus grand nombre de crimes) que le taux d'arrestations est le plus élevé (+ de 40%)
-  (on ignore bien évidemment le district 21 et son trop petit nombre de crimes)
+  /* on constate une tendance : plus il y a de crimes, plus le taux d'arrestation semble augmenter (jusqu'à +40%)
    */
 
   // 4. Evolution de la criminalité de Chicago sur 20 ans (= criminalité par districts)
